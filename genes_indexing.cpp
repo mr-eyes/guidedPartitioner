@@ -15,11 +15,15 @@ int main(int argc, char **argv) {
     string fasta_file = argv[1];
     string names_file = argv[2];
 
-    int kSize = 25;
-    int chunk_size = 10000;
+    cout << "Indexing " << fasta_file << " with k=25" << endl;
 
-    auto *kf = new kDataFramePHMAP(kSize, 1);
+    int kSize = 25;
+    int chunk_size = 100;
+
+    auto *kf = new kDataFramePHMAP(kSize, 2);
+
     colored_kDataFrame *ckf = kProcessor::index(kf, {{"k_size", kSize}}, fasta_file, chunk_size, names_file);
+
     ckf->save(fasta_file);
 
 }
