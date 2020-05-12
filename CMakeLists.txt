@@ -22,9 +22,17 @@ include_directories (${kProcessor_INCLUDE_PATH})
 # ----------------------------------------------------------------------------
 
 
-#include_directories("${PROJECT_SOURCE_DIR}/includes")
+include_directories(lib/kseq/)
+include_directories(includes)
 
 
-add_executable (genesIndexing genes_indexing.cpp)
-target_link_libraries (genesIndexing kProcessor pthread z)
-target_include_directories(genesIndexing INTERFACE ${kProcessor_INCLUDE_PATH})
+add_executable (peReadsPart reads_partitioner.cpp src/kseqReader.cpp)
+target_link_libraries (peReadsPart kProcessor z)
+target_include_directories(peReadsPart INTERFACE ${kProcessor_INCLUDE_PATH})
+
+
+
+# genesIndexing executable (Have an issue after some time in the execution)
+#add_executable (genesIndexing genes_indexing.cpp)
+#target_link_libraries (genesIndexing kProcessor pthread z)
+#target_include_directories(genesIndexing INTERFACE ${kProcessor_INCLUDE_PATH})
