@@ -51,7 +51,8 @@ cp /home/mhussien/guidedPartitioner/data/gencode.v34.transcripts.fa.names ./
 FASTA=gencode.v34.transcripts.fa
 NAMES=gencode.v34.transcripts.fa.names
 
-/usr/bin/time -v /home/mhussien/guidedPartitioner/build/genesIndexing ${FASTA} ${NAMES}
+# /usr/bin/time -v /home/mhussien/guidedPartitioner/build/genesIndexing ${FASTA} ${NAMES}
+/usr/bin/time -v python /home/mhussien/guidedPartitioner/genes_indexing.py ${FASTA} ${NAMES}
 
 # Remove reads
 rm -rf ${FASTA}
