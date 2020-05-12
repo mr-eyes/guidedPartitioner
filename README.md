@@ -22,9 +22,9 @@ mv gencode.v34.transcripts.fa data/
 
 ## 2. Indexing
 
-- RAM: 9.8 GB
-- Chunk size: 10k
-- Time: 00:06:50
+- RAM: 8.7 GB
+- Chunk size: 1k
+- Time: 00:04:50
 - Type: PHMAP
 
 ```shell script
