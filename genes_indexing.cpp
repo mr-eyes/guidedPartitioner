@@ -18,11 +18,12 @@ int main(int argc, char **argv) {
     cout << "Indexing " << fasta_file << " with k=25" << endl;
 
     int kSize = 25;
-    int chunk_size = 100;
 
-    auto *kf = new kDataFramePHMAP(kSize, 2);
+    int chunk_size = 10000;
 
-    colored_kDataFrame *ckf = kProcessor::index(kf, {{"k_size", kSize}}, fasta_file, chunk_size, names_file);
+    auto *kf = new kDataFramePHMAP(kSize, 1);
+
+    colored_kDataFrame *ckf = kProcessor::index(kf, {{"mode", 1}}, fasta_file, chunk_size, names_file);
 
     ckf->save(fasta_file);
 
