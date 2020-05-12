@@ -10,7 +10,33 @@
 
 ```shell script
 
+mkdir -p data
+
+# Download
 wget -c ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_34/gencode.v34.transcripts.fa.gz
 gunzip gencode.v34.transcripts.fa.gz
+mv gencode.v34.transcripts.fa data/
+
+
+```
+
+## 2. Indexing
+
+- RAM: 9.8 GB
+- Chunk size: 10k
+- Time: 00:06:50
+- Type: PHMAP
+
+```shell script
+
+# Creating namesFile
+grep ">" data/gencode.v34.transcripts.fa | cut -c2- |  awk -F'|' '{print $0"\t"$2}' > data/gencode.v34.transcripts.fa.names
+
+# Indexing
+
+FASTA=data/gencode.v34.transcripts.fa
+NAMES=data/gencode.v34.transcripts.fa.names
+
+/usr/bin/time -v python genes_indexing.py ${FASTA} ${NAMES}
 
 ```
