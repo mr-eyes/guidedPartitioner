@@ -4,6 +4,7 @@
 #include <vector>
 #include "kseqReader.hpp"
 #include <sys/stat.h>
+#include <map>
 
 
 using namespace std;
@@ -71,6 +72,15 @@ inline string time_diff(std::chrono::high_resolution_clock::time_point &t1) {
     return timeDiff;
 }
 
+inline bool isFusion(string flag) {
+    return flag == "clear_fusion" || flag == "ambig_fusion" || flag == "multi_fusion";
+}
+
+inline bool isSameRef(string flag) {
+    return flag == "unique" || flag == "ambiguous";
+}
+
+
 int main(int argc, char **argv) {
 
 
@@ -106,6 +116,8 @@ int main(int argc, char **argv) {
     assert(kSize == (int) kf->getkSize());
     std::cerr << "kProcessor index loaded successfully ..." << std::endl;
 
+    unordered_map<int, string> namesMap = ckf->names_map();
+
 
 
     // Initializations
@@ -125,7 +137,7 @@ int main(int argc, char **argv) {
         cerr << "Processing chunk " << ++current_chunk << "/" << no_chunks << "... ";
 
         for (auto const &PE : *PEReader->next_chunk()) {
-
+            stats.n_fragments++;
             families0.clear();
             gaps0.clear();
             shared_kmers0.clear();
@@ -139,12 +151,93 @@ int main(int argc, char **argv) {
 //            cout << PE.R1_name << " : " << flag_R1 << endl;
 //            cout << PE.R2_name << " : " << flag_R2 << endl;
 
+            if (isFusion(flag_R1) || isFusion(flag_R2)) {
+
+                if (isFusion(flag_R1)) {
+                    int i = families0.size() - 1;
+                    for (auto g1:families0[0]) {
+                        string g1_name = namesMap.find(g1)->second;
+                        for (auto g2:families0[i]) {
+                            string g2_name = namesMap.find(g2)->second;
+
+                            vector<int> familiesSizes;
+                            familiesSizes.clear();
+                            for (auto a :families0)
+                                familiesSizes.push_back(a.size());
+
+                            vector<int> gs;
+                            gs.clear();
+                            gs.push_back(g1);
+                            gs.push_back(g2);
+                            sort(gs.begin(), gs.end());
+                        }
+                    }
+                }
+                if (isFusion(flag_R2)) {
+
+                    int i = families1.size() - 1;
+                    for (auto g1:families1[0]) {
+                        string g1_name = namesMap.find(g1)->second;
+                        for (auto g2:families1[i]) {
+                            string g2_name = namesMap.find(g2)->second;
+
+                            vector<int> familiesSizes;
+                            familiesSizes.clear();
+                            for (auto a :families1)
+                                familiesSizes.push_back(a.size());
+
+                            vector<int> gs;
+                            gs.clear();
+                            gs.push_back(g1);
+                            gs.push_back(g2);
+                            sort(gs.begin(), gs.end());
+                        }
+                    }
+                }
+
+            } else if (isSameRef(flag_R1) && isSameRef(flag_R2)) {
+                vector<int> intersect_ids;
+                intersect_ids.clear();
+                auto it = set_intersection(families0[0].begin(), families0[0].end(),
+                                           families1[0].begin(), families1[0].end(), back_inserter(intersect_ids));
+                if (intersect_ids.empty()) {
+                    stats.n_paired_fusion++;
+                    string fusion_class = "ambig_fusion";
+                    if (flag_R1 == "unique" && flag_R2 == "unique")
+                        fusion_class = "clear_fusion";
+
+
+                    for (auto g1:families0[0]) {
+                        string g1_name = namesMap.find(g1)->second;
+                        for (auto g2:families1[0]) {
+                            string g2_name = namesMap.find(g2)->second;
+
+                            vector<int> familiesSizes;
+                            familiesSizes.clear();
+                            familiesSizes.push_back(families0[0].size());
+                            familiesSizes.push_back(families1[0].size());
+
+                            vector<int> gs;
+                            gs.clear();
+                            gs.push_back(g1);
+                            gs.push_back(g2);
+                            sort(gs.begin(), gs.end());
+
+                        }
+                    }
+
+
+                }
+
+            }
+
 
         }
 
         cerr << "Done in " << time_diff(_currentTime) << endl;
     }
 
+    stats.print();
 
     return 0;
 
