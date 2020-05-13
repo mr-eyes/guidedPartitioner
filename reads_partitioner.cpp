@@ -76,6 +76,7 @@ int main(int argc, char **argv) {
     colored_kDataFrame *ckf = colored_kDataFrame::load(index_prefix);
     kDataFrame *kf = ckf->getkDataFrame();
     assert(kSize == (int) kf->getkSize());
+    assert(kf->size() > 100);
     std::cerr << "kProcessor index loaded successfully ..." << std::endl;
 
 
@@ -96,11 +97,11 @@ int main(int argc, char **argv) {
         for (auto const &PE : *PEReader->next_chunk()) {
             classifier.stats.n_fragments++;
 
-            tuple<string, string, string> fragementFlags = classifier.classifyFragment(PE.R1_seq, PE.R2_seq);
+            tuple<string, string, string> fragmentFlags = classifier.classifyFragment(PE.R1_seq, PE.R2_seq);
 
-            string flag_R1 = get<0>(fragementFlags);
-            string flag_R2 = get<1>(fragementFlags);
-            string flag_fragment = get<2>(fragementFlags);
+            string flag_R1 = get<0>(fragmentFlags);
+            string flag_R2 = get<1>(fragmentFlags);
+            string flag_fragment = get<2>(fragmentFlags);
 
 
 //            cout << PE.R1_name << " : " << flag_R1 << endl;
