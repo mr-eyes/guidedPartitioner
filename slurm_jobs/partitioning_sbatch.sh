@@ -54,7 +54,7 @@ R2=SRR11015356_2.fasta
 IDX_PREFIX=/home/mhussien/guidedPartitioner/results/indexing/idx_gencode.v34.transcripts.fa
 
 
-/usr/bin/time -v ./home/mhussien/guidedPartitioner/build/peReadsPart ${R1} ${R2} $IDX_PREFIX
+/usr/bin/time -v /home/mhussien/guidedPartitioner/build/peReadsPart ${R1} ${R2} $IDX_PREFIX
 
 # Remove reads
 rm -rf ${R1}
