@@ -5,53 +5,15 @@
 #include "kseqReader.hpp"
 #include <sys/stat.h>
 #include <map>
-
+#include "readClassifier.hpp"
 
 using namespace std;
-
-class statistics {
-public:
-    uint64_t n_unmatched;
-    uint64_t n_same;
-    uint64_t n_amb_same;
-    uint64_t n_clear_fusion;
-    uint64_t n_ambig_fusion;
-    uint64_t n_mutli_fusion;
-    uint64_t n_paired_fusion;
-    uint64_t n_fragments;
-
-    statistics() {
-        n_fragments = 0;
-        n_unmatched = 0;
-        n_same = 0;
-        n_amb_same = 0;
-        n_clear_fusion = 0;
-        n_ambig_fusion = 0;
-        n_mutli_fusion = 0;
-        n_paired_fusion = 0;
-    }
-
-    void print() const {
-        cout << "No of input fragments: " << n_fragments << endl;
-        cout << "unmatched:" << n_unmatched << endl;
-        cout << "Unique:" << n_same << endl;
-        cout << "Ambiguous:" << n_amb_same << endl;
-        cout << "Single read clear fusion:" << n_clear_fusion << endl;
-        cout << "Single read ambiguous fusion:" << n_ambig_fusion << endl;
-        cout << "Single read multi fusion:" << n_mutli_fusion << endl;
-        cout << "paired read fusion:" << n_paired_fusion << endl;
-
-    }
-};
-
 
 inline bool file_exists(const std::string &name) {
     struct stat buffer{};
     return (stat(name.c_str(), &buffer) == 0);
 }
 
-static string readFusion(const string &read, colored_kDataFrame *DB, vector<vector<uint32_t> > &families,
-                         vector<uint32_t> &shared_kmers, vector<uint32_t> &gaps, statistics &stats);
 
 inline string time_diff(std::chrono::high_resolution_clock::time_point &t1) {
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
@@ -85,7 +47,7 @@ int main(int argc, char **argv) {
 
 
     if (argc != 4) {
-        cerr << "run ./readsPartitioner <R1> <R2> <index_prefix>" << endl;
+        cerr << "run ./peReadsPart <R1> <R2> <index_prefix>" << endl;
         exit(1);
     }
 
@@ -105,7 +67,7 @@ int main(int argc, char **argv) {
         throw std::runtime_error("Could not open kProcessor index file");
     }
 
-    int batchSize = 1000;
+    int batchSize = 10000;
     int kSize = 25;
     int no_of_sequences = 67954363;
 
@@ -116,9 +78,6 @@ int main(int argc, char **argv) {
     assert(kSize == (int) kf->getkSize());
     std::cerr << "kProcessor index loaded successfully ..." << std::endl;
 
-    unordered_map<int, string> namesMap = ckf->names_map();
-
-
 
     // Initializations
     int no_chunks = ceil((double) no_of_sequences / (double) batchSize);
@@ -127,109 +86,26 @@ int main(int argc, char **argv) {
 
     auto *PEReader = new kseqReader(PE_1_reads_file, PE_2_reads_file, batchSize);
 
-    statistics stats;
-    vector<vector<uint32_t> > families0, families1, families;
-    vector<uint32_t> shared_kmers0, gaps0, shared_kmers1, gaps1, shared_kmers, gaps;
 
+    ReadsClassifier classifier(ckf);
 
     while (!PEReader->end()) {
         std::chrono::high_resolution_clock::time_point _currentTime = std::chrono::high_resolution_clock::now();
         cerr << "Processing chunk " << ++current_chunk << "/" << no_chunks << "... ";
 
         for (auto const &PE : *PEReader->next_chunk()) {
-            stats.n_fragments++;
-            families0.clear();
-            gaps0.clear();
-            shared_kmers0.clear();
-            families1.clear();
-            gaps1.clear();
-            shared_kmers1.clear();
+            classifier.stats.n_fragments++;
 
-            string flag_R1 = readFusion(PE.R1_seq, ckf, families0, shared_kmers0, gaps0, stats);
-            string flag_R2 = readFusion(PE.R2_seq, ckf, families1, shared_kmers1, gaps1, stats);
+            tuple<string, string, string> fragementFlags = classifier.classifyFragment(PE.R1_seq, PE.R2_seq);
+
+            string flag_R1 = get<0>(fragementFlags);
+            string flag_R2 = get<1>(fragementFlags);
+            string flag_fragment = get<2>(fragementFlags);
+
 
 //            cout << PE.R1_name << " : " << flag_R1 << endl;
 //            cout << PE.R2_name << " : " << flag_R2 << endl;
 
-            if (isFusion(flag_R1) || isFusion(flag_R2)) {
-
-                if (isFusion(flag_R1)) {
-                    int i = families0.size() - 1;
-                    for (auto g1:families0[0]) {
-                        string g1_name = namesMap.find(g1)->second;
-                        for (auto g2:families0[i]) {
-                            string g2_name = namesMap.find(g2)->second;
-
-                            vector<int> familiesSizes;
-                            familiesSizes.clear();
-                            for (auto a :families0)
-                                familiesSizes.push_back(a.size());
-
-                            vector<int> gs;
-                            gs.clear();
-                            gs.push_back(g1);
-                            gs.push_back(g2);
-                            sort(gs.begin(), gs.end());
-                        }
-                    }
-                }
-                if (isFusion(flag_R2)) {
-
-                    int i = families1.size() - 1;
-                    for (auto g1:families1[0]) {
-                        string g1_name = namesMap.find(g1)->second;
-                        for (auto g2:families1[i]) {
-                            string g2_name = namesMap.find(g2)->second;
-
-                            vector<int> familiesSizes;
-                            familiesSizes.clear();
-                            for (auto a :families1)
-                                familiesSizes.push_back(a.size());
-
-                            vector<int> gs;
-                            gs.clear();
-                            gs.push_back(g1);
-                            gs.push_back(g2);
-                            sort(gs.begin(), gs.end());
-                        }
-                    }
-                }
-
-            } else if (isSameRef(flag_R1) && isSameRef(flag_R2)) {
-                vector<int> intersect_ids;
-                intersect_ids.clear();
-                auto it = set_intersection(families0[0].begin(), families0[0].end(),
-                                           families1[0].begin(), families1[0].end(), back_inserter(intersect_ids));
-                if (intersect_ids.empty()) {
-                    stats.n_paired_fusion++;
-                    string fusion_class = "ambig_fusion";
-                    if (flag_R1 == "unique" && flag_R2 == "unique")
-                        fusion_class = "clear_fusion";
-
-
-                    for (auto g1:families0[0]) {
-                        string g1_name = namesMap.find(g1)->second;
-                        for (auto g2:families1[0]) {
-                            string g2_name = namesMap.find(g2)->second;
-
-                            vector<int> familiesSizes;
-                            familiesSizes.clear();
-                            familiesSizes.push_back(families0[0].size());
-                            familiesSizes.push_back(families1[0].size());
-
-                            vector<int> gs;
-                            gs.clear();
-                            gs.push_back(g1);
-                            gs.push_back(g2);
-                            sort(gs.begin(), gs.end());
-
-                        }
-                    }
-
-
-                }
-
-            }
 
 
         }
@@ -237,167 +113,9 @@ int main(int argc, char **argv) {
         cerr << "Done in " << time_diff(_currentTime) << endl;
     }
 
-    stats.print();
+    classifier.stats.print();
 
     return 0;
 
 }
-
-inline void print(const string &x) {
-    cout << x << endl;
-}
-
-inline void dumpVec(const vector<uint32_t> &vec) {
-    for (auto const &element : vec) {
-        cout << element << ", ";
-    }
-    cout << endl;
-}
-
-static string readFusion(const string &read, colored_kDataFrame *DB, vector<vector<uint32_t> > &families,
-                         vector<uint32_t> &shared_kmers, vector<uint32_t> &gaps, statistics &stats) {
-    shared_kmers.clear();
-    families.clear();
-    gaps.clear();
-    string flag;
-    vector<uint32_t> lf_ids;
-    vector<uint32_t> rt_ids;
-    uint8_t kSize = DB->getkDataFrame()->ksize();
-    if (read.size() < kSize) {
-        stats.n_unmatched++;
-        return "unmatched";
-    }
-    //# find a matching k-mer at the beginning of the read
-
-    lf_ids = DB->getKmerSourceFromColor(DB->getkDataFrame()->getCount(read.substr(0, kSize)));
-
-    int idx = 1;
-
-    while (idx < read.size() - kSize + 1 && lf_ids.empty()) {
-        lf_ids = DB->getKmerSourceFromColor(DB->getkDataFrame()->getCount(read.substr(idx, kSize)));
-        idx++;
-    }
-    if (lf_ids.empty()) {
-//        print("no single match");
-        stats.n_unmatched++;
-        flag = "unmatched";
-    } else if (idx == read.size() - kSize + 1) {
-//        print("same, only last kmer matched");
-        families.push_back(lf_ids);
-
-        if (lf_ids.size() == 1) {
-            stats.n_same += 1;
-            flag = "unique";
-        } else {
-            stats.n_amb_same += 1;
-            flag = "ambiguous";
-        }
-    } else {
-        // # len(lf_ids) > 0 & idx < len(hashvals)
-        //# find a matching k-mer at the end of the read
-        vector<uint32_t> rt_ids = DB->getKmerSourceFromColor(
-                DB->getkDataFrame()->getCount(read.substr(read.size() - kSize, kSize)));
-
-        int idy = read.size() - 1;
-        while (idy - kSize >= idx - 1 && rt_ids.empty()) {
-            rt_ids = DB->getKmerSourceFromColor(DB->getkDataFrame()->getCount(read.substr(idy - kSize, kSize)));
-            idy--;
-        }
-
-        if (rt_ids.empty()) {
-//            print("same, only one non-last kmer matched");
-            families.push_back(lf_ids);
-            if (lf_ids.size() == 1) {
-                stats.n_same += 1;
-                flag = "unique";
-            } else {
-                stats.n_amb_same += 1;
-                flag = "ambiguous";
-            }
-        } else {
-            vector<uint32_t> intersect_ids;
-            intersect_ids.clear();
-            auto it = set_intersection(lf_ids.begin(), lf_ids.end(), rt_ids.begin(), rt_ids.end(),
-                                       back_inserter(intersect_ids));
-            if (!intersect_ids.empty()) {
-                families.push_back(intersect_ids);
-                if (intersect_ids.size() == 1) {
-                    stats.n_same += 1;
-                    flag = "unique";
-                } else {
-                    stats.n_amb_same += 1;
-                    flag = "ambiguous";
-                }
-            } else {
-                //# fusion to be resolved
-                uint64_t shared_kmer = 1;
-                uint64_t gap_size = 0;
-                bool gap = false;
-                while (idx <= (idy + 1 - kSize)) {
-                    vector<uint32_t> temp_ids = DB->getKmerSourceFromColor(
-                            DB->getkDataFrame()->getCount(read.substr(idx, kSize)));
-
-                    if (read.substr(idx, kSize).size() != kSize) {
-                        cout << read.substr(idx, kSize) << " " << idx << " < " << read.size() << endl;
-                    }
-                    if (!temp_ids.empty()) {
-                        intersect_ids.clear();
-                        it = set_intersection(lf_ids.begin(), lf_ids.end(), temp_ids.begin(), temp_ids.end(),
-                                              back_inserter(intersect_ids));
-
-                        if (!intersect_ids.empty()) {
-                            lf_ids = intersect_ids;
-                            shared_kmer += 1;
-                            gap_size = 0;
-                        } else {
-                            // # len(intersect_ids) == 0
-
-                            families.push_back(lf_ids);
-                            shared_kmers.push_back(shared_kmer);
-                            lf_ids = temp_ids;
-                            shared_kmer = 1;
-                            gaps.push_back(gap_size);
-                            gap_size = 0;
-                        }
-                    } else {
-                        gap_size += 1;
-                    }
-                    idx += 1;
-                }
-                families.push_back(lf_ids);
-
-                shared_kmers.push_back(shared_kmer);
-
-                if (families.size() <= 1) {
-                    cerr << "Error" << endl;
-                    return "Error";
-                }
-                if (families.size() == 2) {
-                    if ((families)[0].size() == 1 && (families)[1].size() == 1) {
-                        stats.n_clear_fusion += 1;
-                        flag = "clear_fusion";
-                    } else {
-                        stats.n_ambig_fusion += 1;
-                        flag = "ambig_fusion";
-                    }
-                } else {
-                    //# len(families) > 2
-                    stats.n_mutli_fusion += 1;
-                    flag = "multi_fusion";
-                }
-
-            }
-        }
-    }
-
-    //#if len(families) == 0:
-    //#    families = "-"
-
-    //#if len(shared_kmers) == 0:
-    //#    shared_kmers = "-"
-
-    return flag;
-
-}
-
 
