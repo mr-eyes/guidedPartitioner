@@ -34,14 +34,6 @@ inline string time_diff(std::chrono::high_resolution_clock::time_point &t1) {
     return timeDiff;
 }
 
-inline bool isFusion(string flag) {
-    return flag == "clear_fusion" || flag == "ambig_fusion" || flag == "multi_fusion";
-}
-
-inline bool isSameRef(string flag) {
-    return flag == "unique" || flag == "ambiguous";
-}
-
 
 int main(int argc, char **argv) {
 
