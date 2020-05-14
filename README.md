@@ -44,20 +44,20 @@ NAMES=data/gencode.vM25.transcripts.fa.names
 Total fragments: 67954363
 
 Reads stats:
-	unmatched:          89806872
-	unique:             33714348
-	ambiguous unique:   6545131
-	clear chimeric:     1852951
-	ambiguous chimeric: 1699724
-	multi chimeric:     2289700
+	unmatched:          7635845
+	unique:             112025611
+	ambiguous:          13475355
+	clear chimeric:     809285
+	ambiguous chimeric: 477582
+	multi chimeric:     1485048
 
 Fragments stats:
-	unmatched:          51951662
-	chimeric:           6024413
-	unique:             8175096
-	ambiguous unique:   1803192
+	unmatched:          2956377
+	chimeric:           2738505
+	unique:             53858526
+	ambiguous:          8400955
 ```
 
 - command : `./build/peReadsPart SRR11015356_1.fasta SRR11015356_2.fasta idx_gencode.v34.transcripts.fa`
-- TIme: 1:26:30
+- TIme: 20 mins
 - RAM: 4.5 GB
