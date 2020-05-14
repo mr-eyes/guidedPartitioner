@@ -38,7 +38,7 @@ public:
 
         cout << "\tunmatched:          " << n_unmatched << endl;
         cout << "\tunique:             " << n_same << endl;
-        cout << "\tambiguous unique:   " << n_amb_same << endl;
+        cout << "\tambiguous:          " << n_amb_same << endl;
         cout << "\tclear chimeric:     " << n_clear_fusion << endl;
         cout << "\tambiguous chimeric: " << n_ambig_fusion << endl;
         cout << "\tmulti chimeric:     " << n_mutli_fusion << endl;
@@ -50,7 +50,7 @@ public:
         cout << "\tunmatched:          " << n_paired_unmatched << endl;
         cout << "\tchimeric:           " << n_paired_fusion << endl;
         cout << "\tunique:             " << n_paired_unique << endl;
-        cout << "\tambiguous unique:   " << n_paired_ambig_unique << endl;
+        cout << "\tambiguous:          " << n_paired_ambig_unique << endl;
     }
 };
 
@@ -128,8 +128,28 @@ public:
                 }
             }
         }else{
-            fragmentFlag = "unmatched";
-            stats.n_paired_unmatched++;
+
+            if (isSameRef(flag_R1) || isSameRef(flag_R2)) {
+                // Reads are ambiguous or unique
+
+                if (flag_R1 == "unmatched" || flag_R2 == "unmatched") {
+                    // One of the reads must be unmatched
+
+                    if (flag_R1 == "unique" || flag_R2 == "unique") {
+                        // One of them must be unique
+                        fragmentFlag = "unique";
+                        stats.n_paired_unique++;
+
+                    } else if (flag_R1 == "ambiguous" || flag_R2 == "ambiguous") {
+                        // One of them must be ambiguous
+                        fragmentFlag = "ambiguous";
+                        stats.n_paired_ambig_unique++;
+                    }
+                }
+            } else {
+                fragmentFlag = "unmatched";
+                stats.n_paired_unmatched++;
+            }
         }
 
         return make_tuple(flag_R1, flag_R2, fragmentFlag);
