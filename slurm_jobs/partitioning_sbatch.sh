@@ -44,7 +44,7 @@ cd "$MYTMP"
 ## Copy raw data
 cp /home/mhussien/omnigraph/data/SRR11015356_1.fasta ./
 cp /home/mhussien/omnigraph/data/SRR11015356_2.fasta ./
-cp -r /home/mhussien/guidedPartitioner/results/indexing ./
+cp -r /home/mhussien/guidedPartitioner/results/mouse_index ./
 
 
 
@@ -52,7 +52,7 @@ cp -r /home/mhussien/guidedPartitioner/results/indexing ./
 
 R1=SRR11015356_1.fasta
 R2=SRR11015356_2.fasta
-IDX_PREFIX=indexing/idx_gencode.vM25.transcripts.fa
+IDX_PREFIX=mouse_index/idx_gencode.vM25.transcripts.fa
 
 
 /usr/bin/time -v /home/mhussien/guidedPartitioner/build/peReadsPart ${R1} ${R2} $IDX_PREFIX
