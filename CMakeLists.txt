@@ -24,10 +24,12 @@ include_directories (${kProcessor_INCLUDE_PATH})
 
 include_directories(lib/kseq/)
 include_directories(includes)
+include_directories(lib/sqlite3pp/)
 
 
-add_executable (peReadsPart reads_partitioner.cpp src/kseqReader.cpp)
-target_link_libraries (peReadsPart kProcessor z)
+
+add_executable (peReadsPart reads_partitioner.cpp src/kseqReader.cpp src/sqliteManager.cpp)
+target_link_libraries (peReadsPart kProcessor z sqlite3)
 target_include_directories(peReadsPart INTERFACE ${kProcessor_INCLUDE_PATH})
 
 
