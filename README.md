@@ -38,26 +38,22 @@ NAMES=data/gencode.vM25.transcripts.fa.names
 
 ## 3. Partitioning
 
-### 3.1 Without DB Insertion
-
-```
+```text
 Total fragments: 67954363
 
 Reads stats:
-	unmatched:          7635845
 	unique:             112025611
 	ambiguous:          13475355
-	clear chimeric:     809285
-	ambiguous chimeric: 477582
-	multi chimeric:     1485048
+	chimeric:           2771915
+	unmatched:          7635845
 
 Fragments stats:
-	unmatched:          2956377
+	unique:             57951403
+	ambiguous:          4308078
 	chimeric:           2738505
-	unique:             53858526
-	ambiguous:          8400955
+	unmatched:          2956377
 ```
 
 - command : `./build/peReadsPart SRR11015356_1.fasta SRR11015356_2.fasta idx_gencode.v34.transcripts.fa`
-- TIme: 20 mins
-- RAM: 4.5 GB
+- TIme: 52 mins
+- RAM: 4.55 GB
