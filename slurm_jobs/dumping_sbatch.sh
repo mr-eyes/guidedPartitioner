@@ -52,7 +52,7 @@ DB=genes_partitions.db
 IDX_PREFIX=/home/mhussien/guidedPartitioner/results/mouse_index/idx_gencode.vM25.transcripts.fa
 NO_CORES=32
 
-/usr/bin/time -v dump_partitions.py ${DB} ${IDX_PREFIX} ${NO_CORES}
+/usr/bin/time -v python dump_partitions.py ${DB} ${IDX_PREFIX} ${NO_CORES}
 
 
 rm -rf ${DB}
