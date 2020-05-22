@@ -70,7 +70,17 @@ int main(int argc, char **argv)
 
     int batchSize = 10000;
     int kSize = 25;
-    int no_of_sequences = 67954363;
+    int no_of_sequences;
+
+    cerr << "counting number of reads ..." << endl;
+    int count = 0;
+    string line;
+    ifstream file(PE_1_reads_file);
+    while (getline(file, line)) count++;
+
+    no_of_sequences = count / 2;
+    int no_chunks = ceil((double)no_of_sequences / (double)batchSize);
+    cerr << "processing " << no_of_sequences << " reads in " << no_chunks << " chunks ..." << endl;
 
     // Create DB table
     string sqlite_db = "genes_partitions.db";
@@ -86,7 +96,7 @@ int main(int argc, char **argv)
     std::cerr << "kProcessor index loaded successfully ..." << std::endl;
 
     // Initializations
-    int no_chunks = ceil((double)no_of_sequences / (double)batchSize);
+    
     int current_chunk = 0;
 
     auto *PEReader = new kseqReader(PE_1_reads_file, PE_2_reads_file, batchSize);
