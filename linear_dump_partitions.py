@@ -4,6 +4,7 @@ from collections import defaultdict
 import os
 from tqdm import tqdm
 import multiprocessing
+from itertools import islice
 
 
 if len(sys.argv) < 4:
@@ -29,24 +30,52 @@ with open(idx_prefix + ".namesMap") as namesMapReader:
 output_dir = os.path.basename(sqlite_db_path).replace(".db", '')
 os.makedirs(output_dir)
 
-all_params = list()
+all_params = dict()
 
 for gene_id, gene_name in genes.items():
     file_name = os.path.join(output_dir, f"{gene_id}.fa")
-    all_params.append((file_name, gene_id, gene_name))
+    all_params[gene_id] = (file_name, gene_name)
 
 conn = sqlite3.connect(sqlite_db_path)
 
+chunks = list()
 
-for param in tqdm(all_params):
-    file_path, gene_id, gene_name = param    
-    read_sql = f"select * from reads where gene_id = {gene_id}"
-    read_curs = conn.execute(read_sql)
-    rows = read_curs.fetchall()
-    if len(rows):
-        with open(file_path, 'w') as fastaWriter:
-            for row in rows:
-                fastaWriter.write(f">{row[2]}_1\t{gene_name}\n{row[3]}\n")
-                fastaWriter.write(f">{row[2]}_2\t{gene_name}\n{row[4]}\n")
+def chunks(data, SIZE=500):
+    it = iter(data)
+    for i in range(0, len(data), SIZE):
+        yield {k:data[k] for k in islice(it, SIZE)}
+
+all_chunks = list(chunks(all_params, 800))
+
+for chunk in tqdm(all_chunks):
+    all_gene_ids = tuple(chunk.keys())
+    geneID_to_geneName = dict()
+    all_file_paths = set()
+    written_files = set()
+
+    files_handlers = dict()
+    for gene_id, params in chunk.items():
+        file_path, gene_name = params
+        all_file_paths.add(file_path)
+        geneID_to_geneName[gene_id] = gene_name
+        files_handlers[gene_id] = open(file_path, 'w')
+
+    read_sql = "select * from reads where gene_id in ({seq})".format(seq=','.join(['?'] * len(all_gene_ids)))
+    curs = conn.execute(read_sql, all_gene_ids)
+    rows = curs.fetchall()
+
+    for row in rows:
+        written_files.add(chunk[row[1]][0])
+        files_handlers[row[1]].write(f">{row[2]}_1\n{row[3]}\n")
+        files_handlers[row[1]].write(f">{row[2]}_2\n{row[4]}\n")
+
+    for gene_id, fileHandler in files_handlers.items():
+        fileHandler.close()
+
+    empty_files = all_file_paths - written_files
+
+    for _file in empty_files:
+        os.remove(_file)
+        
 
 conn.close()
