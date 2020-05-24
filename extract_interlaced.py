@@ -16,14 +16,15 @@ else:
     fasta_file = sys.argv[1]
 
 
-file1_name = fasta_file.replace(".fa", '') + "_1.fa"
-file2_name = fasta_file.replace(".fa", '') + "_2.fa"
+file1_name = fasta_file.replace(".fa", '') + "_1.fq"
+file2_name = fasta_file.replace(".fa", '') + "_2.fq"
 
 with auto_open(fasta_file, 'r') as FASTA_READER, open(file1_name, 'w') as FA1, open(file2_name, 'w') as FA2:
     for line in FASTA_READER:
-        seq1_header = line
+        fakeQuality = "+\n" + "?"*151 + "\n"
+        seq1_header = line.replace(">","@").replace("_1","")
         seq1_seq = next(FASTA_READER)
-        seq2_header = next(FASTA_READER)
+        seq2_header = next(FASTA_READER).replace(">","@").replace("_2","")
         seq2_seq = next(FASTA_READER)
-        FA1.write(seq1_header + seq1_seq)
-        FA2.write(seq2_header + seq2_seq)
+        FA1.write(seq1_header + seq1_seq + fakeQuality)
+        FA2.write(seq2_header + seq2_seq + fakeQuality)
