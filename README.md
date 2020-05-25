@@ -79,7 +79,7 @@ Memory: 0.95 GB
 
 ---
 
-## Assembling the whole data with **PLASS**
+## 5. Assembling the whole data with **PLASS**
 
 ```bash
 # Convert fasta file to fastq (Required for plass)
@@ -107,3 +107,31 @@ assembled_SRR11015356.fa  FASTA   DNA    202,959  391,239,783    1,000  1,927.7 
 
 ---
 
+## 6. Whole data assembly assessment (RNAQuast)
+
+```bash
+
+wget -c ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/GRCm38.p6.genome.fa.gz
+wget -c ftp://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M25/gencode.vM25.chr_patch_hapl_scaff.annotation.gtf.gz
+gunzip *gz
+
+
+THREADS=24
+GTF=gencode.vM25.chr_patch_hapl_scaff.annotation.gtf
+REF_GENOME=GRCm38.p6.genome.fa
+TRANSCRIPTS=assembled_SRR11015356.fa
+
+/usr/bin/time -v rnaQUAST.py --disable_infer_transcripts --disable_infer_genes --transcripts ${TRANSCRIPTS} --reference ${REF_GENOME} --gtf ${GTF} -t ${THREADS} -o rnaQuast_plass_SRR11015356
+
+```
+
+```tsv
+METRICS/TRANSCRIPTS	assembled_SRR11015356
+Genes	55938
+Avg. number of exons per isoform	5.909
+Transcripts	202959
+Transcripts > 500 bp	202959
+Transcripts > 1000 bp	202959
+Aligned	202750
+Uniquely aligned	155842
+```
