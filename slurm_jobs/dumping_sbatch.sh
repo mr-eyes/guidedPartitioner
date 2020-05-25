@@ -2,12 +2,12 @@
 #! /bin/bash -login
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=mabuelanin@gmail.com
-#SBATCH -p bmm
+#SBATCH -p bml
 #SBATCH -J genes_partitions_dumping
-#SBATCH --time=3:00:00
+#SBATCH --time=10:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -c 32
+#SBATCH -c 1
 #SBATCH --mem=10gb
 #SBATCH --output=slurm_%x.%j.out
 #SBATCH --error=slurm_%x.%j.err
@@ -43,16 +43,16 @@ cd "$MYTMP"
 
 ## Copy raw data
 cp /home/mhussien/guidedPartitioner/results/genes_partitions.db ./
-cp /home/mhussien/guidedPartitioner/dump_partitions.py ./
+cp /home/mhussien/guidedPartitioner/linear_dump_partitions.py ./
 
 
 ############################## (1) START DUMPING ####################################
 
 DB=genes_partitions.db
 IDX_PREFIX=/home/mhussien/guidedPartitioner/results/mouse_index/idx_gencode.vM25.transcripts.fa
-NO_CORES=32
+NO_CORES=1
 
-/usr/bin/time -v python dump_partitions.py ${DB} ${IDX_PREFIX} ${NO_CORES}
+/usr/bin/time -v python linear_dump_partitions.py ${DB} ${IDX_PREFIX} ${NO_CORES}
 
 
 rm -rf ${DB}
