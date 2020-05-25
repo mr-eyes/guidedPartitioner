@@ -135,3 +135,9 @@ Transcripts > 1000 bp	202959
 Aligned	202750
 Uniquely aligned	155842
 ```
+
+```txt
+Memory: 100GB
+Cores: 24
+Time: 3:38:25
+```
