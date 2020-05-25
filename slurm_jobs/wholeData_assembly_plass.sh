@@ -7,8 +7,8 @@
 #SBATCH --time=30:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -c 4
-#SBATCH --mem=16gb
+#SBATCH -c 32
+#SBATCH --mem=200gb
 #SBATCH --output=slurm_%x.%j.out
 #SBATCH --error=slurm_%x.%j.err
 
@@ -60,7 +60,7 @@ R2=SRR11015356_2.fastq
 
 
 # Set Global Variables
-THREADS=4
+THREADS=32
 OUTPUT_DIR=tmp_SRR11015356_plass
 
 
