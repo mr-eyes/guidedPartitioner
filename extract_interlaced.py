@@ -15,9 +15,8 @@ if len(sys.argv) < 2:
 else:
     fasta_file = sys.argv[1]
 
-
-file1_name = fasta_file.replace(".fa", '') + "_1.fq"
-file2_name = fasta_file.replace(".fa", '') + "_2.fq"
+file1_name = fasta_file.replace(".fa", '') + "_1.fastq"
+file2_name = fasta_file.replace(".fa", '') + "_2.fastq"
 
 with auto_open(fasta_file, 'r') as FASTA_READER, open(file1_name, 'w') as FA1, open(file2_name, 'w') as FA2:
     for line in FASTA_READER:
