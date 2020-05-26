@@ -72,6 +72,7 @@ PLASS_LOG=plass_assembly.log
 MERGED_TRANSCRIPTS=all_transcripts.fa
 
 touch ${MERGED_TRANSCRIPTS}
+touch ${PLASS_LOG}
 
 for FASTA in ${GENES_PARTITIONS}/*
 do
@@ -82,7 +83,7 @@ do
     R1=${GENE_ID}_1.fastq
     R2=${GENE_ID}_2.fastq
 
-    ${PLASS} nuclassemble -v 0 ${R1} ${R2} assembled_${GENE_ID}.fa ${TMP_DIR} --threads ${THREADS} &> ${PLASS_LOG}
+    ${PLASS} nuclassemble -v 0 ${R1} ${R2} assembled_${GENE_ID}.fa ${TMP_DIR} --threads ${THREADS} >>${PLASS_LOG} 2>&1 
 
     # Move the output assembled transcripts into ${OUTPUT}
     cat assembled_${GENE_ID}.fa >> ${MERGED_TRANSCRIPTS}
@@ -91,6 +92,7 @@ do
     # Remove temporary files
     rm -rf ${TMP_DIR}
     rm -rf ${R1} ${R2}
+    rm -rf ${FASTA}
 
     # Print remaining partitions
     TOTAL_FILES_NUMBER=`expr $TOTAL_FILES_NUMBER - 1`
@@ -102,8 +104,6 @@ done
 
 
 ############################## DONE Assembly #######################################
-
-rm -rf ${GENES_PARTITIONS}
 
 ########################### Move scratch to home dir ###################
 
