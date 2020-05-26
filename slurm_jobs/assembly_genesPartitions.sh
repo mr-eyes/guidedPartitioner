@@ -43,7 +43,7 @@ trap cleanup EXIT
 cd "$MYTMP"
 
 ## Copy gene partitions
-cp -r /home/mhussien/guidedPartitioner/results/genes_partitions ./
+cp -r /home/mhussien/guidedPartitioner/results/genes_partitions ./genes_partitions
 
 # Interlaced fasta extraction script
 cp /home/mhussien/guidedPartitioner/extract_interlaced.py ./
@@ -103,6 +103,7 @@ done
 
 ############################## DONE Assembly #######################################
 
+rm -rf ${GENES_PARTITIONS}
 
 ########################### Move scratch to home dir ###################
 
