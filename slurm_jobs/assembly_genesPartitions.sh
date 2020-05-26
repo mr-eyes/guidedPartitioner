@@ -77,7 +77,7 @@ for FASTA in ${GENES_PARTITIONS}/*
 do
 
     # Extract the interlaced Fasta and convert to Fastq
-    GENE_ID=$(echo "$FASTA" | cut -f 1 -d '.')
+    GENE_ID=$(basename ${FASTA} .fa)
     python extract_interlaced.py ${FASTA}
     R1=${GENE_ID}_1.fastq
     R2=${GENE_ID}_2.fastq
