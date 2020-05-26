@@ -64,7 +64,7 @@ GENES_PARTITIONS=genes_partitions
 OUTPUT=assembled_transcripts
 mkdir ${OUTPUT}
 
-TOTAL_FILES_NUMBER=$(ls -1q ${OUTPUT}/* | wc -l)
+TOTAL_FILES_NUMBER=$(ls -1q ${GENES_PARTITIONS}/* | wc -l)
 
 echo -e "Processing ${TOTAL_FILES_NUMBER} Partitions...\n"
 
