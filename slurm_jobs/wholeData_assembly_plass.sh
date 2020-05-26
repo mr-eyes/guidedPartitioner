@@ -62,12 +62,12 @@ R2=SRR11015356_2.fastq
 # Set Global Variables
 THREADS=32
 OUTPUT_DIR=tmp_SRR11015356_plass
-
+MIN_CONTIG_LENGTH=150
 
 ############################## (1) START Dumping ####################################
 
 
-/usr/bin/time -v plass nuclassemble -v 3 ${R1} ${R2} assembled_SRR11015356.fa ${OUTPUT_DIR} --threads ${THREADS}
+/usr/bin/time -v plass nuclassemble -v 3 ${R1} ${R2} assembled_SRR11015356.fa ${OUTPUT_DIR} --threads ${THREADS} --min-contig-len ${MIN_CONTIG_LENGTH}
 
 
 ############################## DONE Partitioning #######################################
