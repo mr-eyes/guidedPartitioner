@@ -65,8 +65,9 @@ OUTPUT=assembled_transcripts
 mkdir ${OUTPUT}
 
 TOTAL_FILES_NUMBER=$(ls -1q ${GENES_PARTITIONS}/* | wc -l)
+COUNTER=${TOTAL_FILES_NUMBER}
 
-echo -e "Processing ${TOTAL_FILES_NUMBER} Partitions...\n"
+echo -e "Processing ${COUNTER} Partitions...\n"
 
 PLASS_LOG=plass_assembly.log
 MERGED_TRANSCRIPTS=all_transcripts.fa
@@ -76,6 +77,18 @@ touch ${PLASS_LOG}
 
 for FASTA in ${GENES_PARTITIONS}/*
 do
+
+    # Print remaining partitions
+    COUNTER=`expr $COUNTER - 1`
+    echo "Processing (${FASTA}): ${COUNTER} / ${TOTAL_FILES_NUMBER}"
+
+    seqs_no=$(grep ">" ${FASTA} | wc -l)
+
+    # Skipping all paritions with number of reads < 5
+    if (( seqs_no < 10)); then
+        continue
+    fi
+
 
     # Extract the interlaced Fasta and convert to Fastq
     GENE_ID=$(basename ${FASTA} .fa)
@@ -93,10 +106,6 @@ do
     rm -rf ${TMP_DIR}
     rm -rf ${R1} ${R2}
     rm -rf ${FASTA}
-
-    # Print remaining partitions
-    TOTAL_FILES_NUMBER=`expr $TOTAL_FILES_NUMBER - 1`
-    echo "Remaining partitions: ${TOTAL_FILES_NUMBER}"
 
 done
 
