@@ -107,7 +107,7 @@ assembled_SRR11015356.fa  FASTA   DNA    202,959  391,239,783    1,000  1,927.7 
 
 ---
 
-## 6. Whole data assembly assessment (RNAQuast)
+## 6. Whole data assembly assessment (RNAQuast) [min-contig-length=1000]
 
 ```bash
 
@@ -125,19 +125,100 @@ TRANSCRIPTS=assembled_SRR11015356.fa
 
 ```
 
-```tsv
-METRICS/TRANSCRIPTS	assembled_SRR11015356
-Genes	55938
-Avg. number of exons per isoform	5.909
-Transcripts	202959
-Transcripts > 500 bp	202959
-Transcripts > 1000 bp	202959
-Aligned	202750
-Uniquely aligned	155842
+```txt
+METRICS/TRANSCRIPTS                                    assembled_SRR11015356
+
+ == DATABASE METRICS ==
+Genes                                                  55938
+Avg. number of exons per isoform                       5.909
+
+ == BASIC TRANSCRIPTS METRICS ==
+Transcripts                                            202959
+Transcripts > 500 bp                                   202959
+Transcripts > 1000 bp                                  202959
+
+ == ALIGNMENT METRICS ==
+Aligned                                                202750
+Uniquely aligned                                       155842
+Multiply aligned                                       1006
+Unaligned                                              209
+
+ == ALIGNMENT METRICS FOR NON-MISASSEMBLED TRANSCRIPTS ==
+Avg. aligned fraction                                  0.941
+Avg. alignment length                                  1870.677
+Avg. mismatches per transcript                         11.155
+
+ == ALIGNMENT METRICS FOR MISASSEMBLED (CHIMERIC) TRANSCRIPTS ==
+Misassemblies                                          41522
+
+ == ASSEMBLY COMPLETENESS (SENSITIVITY) ==
+Database coverage                                      0.263
+Duplication ratio                                      2.999
+50%-assembled genes                                    11403
+95%-assembled genes                                    4879
+50%-covered genes                                      11815
+95%-covered genes                                      7985
+50%-assembled isoforms                                 22298
+95%-assembled isoforms                                 5884
+50%-covered isoforms                                   24694
+95%-covered isoforms                                   10397
+Mean isoform coverage                                  0.742
+Mean isoform assembly                                  0.661
+
+ == GeneMarkS-T METRICS ==
+Predicted genes                                        104996
+
+ == ASSEMBLY SPECIFICITY ==
+50%-matched                                            40920
+95%-matched                                            13965
+Unannotated                                            0.63
 ```
 
 ```txt
 Memory: 100GB
 Cores: 24
 Time: 3:38:25
+```
+
+## 7. Whole data assembly assessment (RNAQuast) [min-contig-length=500]
+
+```txt
+ == BASIC TRANSCRIPTS METRICS ==
+Transcripts                                            476494
+Transcripts > 500 bp                                   476494
+Transcripts > 1000 bp                                  212853
+
+ == ALIGNMENT METRICS ==
+Aligned                                                475347
+Uniquely aligned                                       375177
+Multiply aligned                                       2951
+Unaligned                                              1147
+
+ == ALIGNMENT METRICS FOR NON-MISASSEMBLED TRANSCRIPTS ==
+Avg. aligned fraction                                  0.947
+Avg. alignment length                                  1182.064
+Avg. mismatches per transcript                         8.429
+
+ == ALIGNMENT METRICS FOR MISASSEMBLED (CHIMERIC) TRANSCRIPTS ==
+Misassemblies                                          86475
+
+ == ASSEMBLY COMPLETENESS (SENSITIVITY) ==
+Database coverage                                      0.314
+Duplication ratio                                      3.937
+50%-assembled genes                                    12632
+95%-assembled genes                                    5628
+50%-covered genes                                      13299
+95%-covered genes                                      9283
+50%-assembled isoforms                                 29651
+95%-assembled isoforms                                 7177
+50%-covered isoforms                                   34346
+95%-covered isoforms                                   13765
+Mean isoform coverage                                  0.714
+Mean isoform assembly                                  0.618
+```
+
+```txt
+Memory: 102GB
+Cores: 24
+Time: 5:40:09
 ```
