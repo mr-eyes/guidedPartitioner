@@ -4,7 +4,7 @@
 #SBATCH --mail-user=mabuelanin@gmail.com
 #SBATCH -p bmh
 #SBATCH -J genesPartitions_assembly_plass
-#SBATCH --time=30:00:00
+#SBATCH --time=50:00:00
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 32
