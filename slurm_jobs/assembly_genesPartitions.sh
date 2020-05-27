@@ -4,11 +4,11 @@
 #SBATCH --mail-user=mabuelanin@gmail.com
 #SBATCH -p bmh
 #SBATCH -J genesPartitions_assembly_plass
-#SBATCH --time=50:00:00
+#SBATCH --time=60:00:00
 #SBATCH -N 1
 #SBATCH -n 1
-#SBATCH -c 32
-#SBATCH --mem=50gb
+#SBATCH -c 4
+#SBATCH --mem=16gb
 #SBATCH --output=slurm_%x.%j.out
 #SBATCH --error=slurm_%x.%j.err
 
@@ -54,7 +54,7 @@ wget https://mmseqs.com/plass/plass-static_sse41.tar.gz; tar xvfz plass-static_s
 PLASS=./plass/bin/plass
 
 # Set Global Variables
-THREADS=32
+THREADS=4
 TMP_DIR=tmp_plass
 GENES_PARTITIONS=genes_partitions
 
