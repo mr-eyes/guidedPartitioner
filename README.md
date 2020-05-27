@@ -222,3 +222,77 @@ Memory: 102GB
 Cores: 24
 Time: 5:40:09
 ```
+
+## 8. Genes partitions assembly
+
+```bash
+THREADS=4
+TMP_DIR=tmp_plass
+GENES_PARTITIONS=genes_partitions
+
+OUTPUT=assembled_transcripts
+mkdir ${OUTPUT}
+
+TOTAL_FILES_NUMBER=$(ls -1q ${GENES_PARTITIONS}/* | wc -l)
+COUNTER=${TOTAL_FILES_NUMBER}
+
+echo -e "Processing ${COUNTER} Partitions...\n"
+
+PLASS_LOG=plass_assembly.log
+MERGED_TRANSCRIPTS=all_transcripts.fa
+
+touch ${MERGED_TRANSCRIPTS}
+touch ${PLASS_LOG}
+
+for FASTA in ${GENES_PARTITIONS}/*
+do
+
+    # Print remaining partitions
+    COUNTER=`expr $COUNTER - 1`
+    echo "Processing (${FASTA}): ${COUNTER} / ${TOTAL_FILES_NUMBER}"
+
+    seqs_no=$(grep ">" ${FASTA} | wc -l)
+
+    # Skipping all paritions with number of reads < 5
+    if (( seqs_no < 10)); then
+        continue
+    fi
+
+
+    # Extract the interlaced Fasta and convert to Fastq
+    GENE_ID=$(basename ${FASTA} .fa)
+    python extract_interlaced.py ${FASTA}
+    R1=${GENE_ID}_1.fastq
+    R2=${GENE_ID}_2.fastq
+
+    ${PLASS} nuclassemble -v 0 ${R1} ${R2} assembled_${GENE_ID}.fa ${TMP_DIR} --threads ${THREADS} >>${PLASS_LOG} 2>&1 
+
+    # Move the output assembled transcripts into ${OUTPUT}
+    cat assembled_${GENE_ID}.fa >> ${MERGED_TRANSCRIPTS}
+    mv assembled_${GENE_ID}.fa ${OUTPUT}
+
+    # Remove temporary files
+    rm -rf ${TMP_DIR}
+    rm -rf ${R1} ${R2}
+    rm -rf ${FASTA}
+
+done
+```
+
+### 8.1 Post-assembly (CDHIT-97%)
+
+```txt
+waiting ....
+```
+
+### 8.2 MiContigLength=1000 assembly assessment
+
+```txt
+waiting ....
+```
+
+### 8.2 MiContigLength=500 assembly assessment
+
+```txt
+waiting ....
+```
