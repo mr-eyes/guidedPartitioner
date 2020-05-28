@@ -2,7 +2,7 @@
 #! /bin/bash -login
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=mabuelanin@gmail.com
-#SBATCH -p bmh
+#SBATCH -p bmm
 #SBATCH -J postAssembly_reprsExtraction
 #SBATCH --time=10:00:00
 #SBATCH -N 1
@@ -48,7 +48,7 @@ cp /home/mhussien/guidedPartitioner/slurm_jobs/genesPartitionsAssembly/minContig
 
 # Set Variables
 THREADS=32
-MAX_RAM_MB=120000
+MAX_RAM_MB=150000
 
 ############################## (1) START Assembly ####################################
 
