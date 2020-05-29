@@ -265,7 +265,7 @@ do
     R1=${GENE_ID}_1.fastq
     R2=${GENE_ID}_2.fastq
 
-    ${PLASS} nuclassemble -v 0 ${R1} ${R2} assembled_${GENE_ID}.fa ${TMP_DIR} --threads ${THREADS} >>${PLASS_LOG} 2>&1 
+    ${PLASS} nuclassemble -v 0 ${R1} ${R2} assembled_${GENE_ID}.fa ${TMP_DIR} --threads ${THREADS} >>${PLASS_LOG} 2>&1
 
     # Move the output assembled transcripts into ${OUTPUT}
     cat assembled_${GENE_ID}.fa >> ${MERGED_TRANSCRIPTS}
@@ -279,20 +279,158 @@ do
 done
 ```
 
+```txt
+time: 1d 1h 38m 58s
+memory: 466 M
+```
+
 ### 8.1 Post-assembly (CDHIT-97%)
 
+```bash
+THREADS=32
+WORD_SIZE=11
+SIM=0.97
+REF_FASTA=all_transcripts.fa
+MAX_RAM_MB=150000
+cd-hit-est -i ${REF_FASTA} -n ${WORD_SIZE} -c ${SIM} -o clusters_${SIM}_${OUT_PREFIX} -d 0 -T ${THREADS} -M ${MAX_RAM_MB}
+```
+
 ```txt
-waiting ....
+Memory: 12.18G
+Time: 1h
 ```
 
 ### 8.2 MiContigLength=1000 assembly assessment
 
+```bash
+THREADS=32
+GTF=gencode.vM25.chr_patch_hapl_scaff.annotation.gtf
+REF_GENOME=GRCm38.p6.genome.fa
+TRANSCRIPTS=assembled_transcripts.fa
+/usr/bin/time -v rnaQUAST.py --disable_infer_transcripts --disable_infer_genes --transcripts ${TRANSCRIPTS} --reference ${REF_GENOME} --gtf ${GTF} -t ${THREADS} -o rnaQuast_plass_SRR11015356
+```
+
 ```txt
-waiting ....
+time: 3:48:12
+memory: 13GB
+```
+
+> Something wrong in the total number of transcripts
+
+```txt
+METRICS/TRANSCRIPTS                                    assembled_transcripts
+
+ == DATABASE METRICS ==
+Genes                                                  55938
+Avg. number of exons per isoform                       5.909
+
+ == BASIC TRANSCRIPTS METRICS ==
+Transcripts                                            4227
+Transcripts > 500 bp                                   4227
+Transcripts > 1000 bp                                  4227
+
+ == ALIGNMENT METRICS ==
+Aligned                                                4227
+Uniquely aligned                                       183684
+Multiply aligned                                       861
+Unaligned                                              0
+
+ == ALIGNMENT METRICS FOR NON-MISASSEMBLED TRANSCRIPTS ==
+Avg. aligned fraction                                  0.827
+Avg. alignment length                                  1603.279
+Avg. mismatches per transcript                         10.745
+
+ == ALIGNMENT METRICS FOR MISASSEMBLED (CHIMERIC) TRANSCRIPTS ==
+Misassemblies                                          2546
+
+ == ASSEMBLY COMPLETENESS (SENSITIVITY) ==
+Database coverage                                      0.255
+Duplication ratio                                      4.296
+50%-assembled genes                                    10602
+95%-assembled genes                                    4484
+50%-covered genes                                      11292
+95%-covered genes                                      6994
+50%-assembled isoforms                                 20947
+95%-assembled isoforms                                 5830
+50%-covered isoforms                                   23334
+95%-covered isoforms                                   9726
+Mean isoform coverage                                  0.779
+Mean isoform assembly                                  0.694
+
+ == GeneMarkS-T METRICS ==
+Predicted genes                                        3780
+
+ == ASSEMBLY SPECIFICITY ==
+50%-matched                                            2777
+95%-matched                                            8
+Unannotated                                            0.74
+
 ```
 
 ### 8.2 MiContigLength=500 assembly assessment
 
+- Assembly
+
 ```txt
-waiting ....
+memory: 350 MB
+time: 1d 5h 22m
+```
+
+- Assembly assessment
+
+```txt
+memory: 12.6 GB
+time: 4:52:43
+```
+
+> The same postAssembly clustering and rnaQuast is done, just putting the results
+
+```txt
+
+METRICS/TRANSCRIPTS                                    assembled_transcripts
+
+ == DATABASE METRICS ==
+Genes                                                  55938
+Avg. number of exons per isoform                       5.909
+
+ == BASIC TRANSCRIPTS METRICS ==
+Transcripts                                            14179
+Transcripts > 500 bp                                   14179
+Transcripts > 1000 bp                                  5554
+
+ == ALIGNMENT METRICS ==
+Aligned                                                14178
+Uniquely aligned                                       387243
+Multiply aligned                                       2029
+Unaligned                                              1
+
+ == ALIGNMENT METRICS FOR NON-MISASSEMBLED TRANSCRIPTS ==
+Avg. aligned fraction                                  0.808
+Avg. alignment length                                  944.198
+Avg. mismatches per transcript                         7.516
+
+ == ALIGNMENT METRICS FOR MISASSEMBLED (CHIMERIC) TRANSCRIPTS ==
+Misassemblies                                          7182
+
+ == ASSEMBLY COMPLETENESS (SENSITIVITY) ==
+Database coverage                                      0.287
+Duplication ratio                                      4.707
+50%-assembled genes                                    11592
+95%-assembled genes                                    4377
+50%-covered genes                                      12944
+95%-covered genes                                      7601
+50%-assembled isoforms                                 26974
+95%-assembled isoforms                                 5744
+50%-covered isoforms                                   32861
+95%-covered isoforms                                   11399
+Mean isoform coverage                                  0.712
+Mean isoform assembly                                  0.603
+
+ == GeneMarkS-T METRICS ==
+Predicted genes                                        12768
+
+ == ASSEMBLY SPECIFICITY ==
+50%-matched                                            9365
+95%-matched                                            24
+Unannotated                                            0.716
 ```
