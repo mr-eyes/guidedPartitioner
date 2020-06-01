@@ -1,5 +1,4 @@
 import sys
-from Bio import SeqIO
 import subprocess
 import gzip
 from tqdm import tqdm
